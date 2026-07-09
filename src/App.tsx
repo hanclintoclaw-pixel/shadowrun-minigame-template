@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { minigameConfig } from './minigameConfig'
-import { buildIssueDraft, downloadTextFile, loadLocalState, saveLocalState, snapshotOf } from './persistence'
+import { buildIssueDraft, buildJsonPatch, downloadTextFile, loadLocalState, saveLocalState, snapshotOf } from './persistence'
 import type { PersistRequest } from './persistence'
 
 interface ExampleState {
@@ -74,7 +74,14 @@ function App() {
       },
       summary: `${state.runner} requests ${state.upgrades.length} canonical minigame update(s) for ${state.sessionDate}.`,
       canonicalTargets: ['data/example-minigame.json', 'campaign-wiki/Minigames.md'],
-      requestedChanges: [{ type: 'replace_example_state', payload: state }],
+      requestedChanges: [
+        {
+          type: 'patch_example_state',
+          baseSnapshot: 'template seedState',
+          format: 'json-patch/rfc6902',
+          payload: buildJsonPatch(seedState, state),
+        },
+      ],
     }
 
     const issueDraft = buildIssueDraft(
@@ -129,7 +136,7 @@ function App() {
       <section className="panel actions">
         <div>
           <strong>{hasUnsubmittedChanges ? 'Unsubmitted global changes' : 'No unsubmitted global changes'}</strong>
-          <p>Opening an issue marks this local snapshot as submitted. Cindy still validates membership before applying repo changes. Large JSON requests download as an attachment file instead of being placed in the URL.</p>
+          <p>Opening an issue marks this local snapshot as submitted. Cindy still validates membership before applying repo changes. Requests use a JSON Patch delta against the bundled seed state; oversized deltas download as an attachment file instead of being placed in the URL.</p>
           {persistNotice && <p className="notice">{persistNotice}</p>}
         </div>
         <button onClick={openPersistIssue}>Persist Changes via GitHub Issue</button>
