@@ -13,11 +13,8 @@ export interface PersistRequest<State> {
   campaign: string
   createdAt: string
   sourceRepository: string
+  sourceCommit: string
   localStorageKey: string
-  authorization: {
-    requiredAuthorAssociation: Array<'MEMBER' | 'OWNER' | 'COLLABORATOR'>
-    fallback: string
-  }
   summary: string
   canonicalTargets: string[]
   requestedChanges: Array<{
@@ -119,10 +116,6 @@ export function buildIssueBody<State>(request: PersistRequest<State>) {
 
 ${request.summary}
 
-## Permission gate
-
-Maintainers/Cindy: do not apply this request unless the issue author's GitHub association is MEMBER, OWNER, or COLLABORATOR, or a repo member explicitly approves it in-thread.
-
 ## Machine-readable request
 
 \`\`\`json
@@ -136,13 +129,9 @@ export function buildAttachmentIssueBody<State>(request: PersistRequest<State>, 
 
 ${request.summary}
 
-## Permission gate
-
-Maintainers/Cindy: do not apply this request unless the issue author's GitHub association is MEMBER, OWNER, or COLLABORATOR, or a repo member explicitly approves it in-thread.
-
 ## Machine-readable request
 
-The full JSON request was too large for a prefilled GitHub Issue URL. Please attach the downloaded file to this issue before submitting it.
+The JSON Patch request was too large for a prefilled GitHub Issue URL. Please attach the downloaded file to this issue before submitting it.
 
 Expected attachment: \`${filename}\`
 `

@@ -3,6 +3,8 @@ import { minigameConfig } from './minigameConfig'
 import { buildIssueDraft, buildJsonPatch, downloadTextFile, loadLocalState, saveLocalState, snapshotOf } from './persistence'
 import type { PersistRequest } from './persistence'
 
+declare const __SOURCE_COMMIT__: string
+
 interface ExampleState {
   version: 1
   runner: string
@@ -60,6 +62,8 @@ function App() {
   }, [hasUnsubmittedChanges])
 
   function openPersistIssue() {
+    if (!hasUnsubmittedChanges) return
+
     const request: PersistRequest<ExampleState> = {
       schemaVersion: 'shadowrun-minigame-persist/v1',
       appId: minigameConfig.appId,
@@ -67,11 +71,8 @@ function App() {
       campaign: minigameConfig.campaign,
       createdAt: new Date().toISOString(),
       sourceRepository: minigameConfig.sourceRepository,
+      sourceCommit: __SOURCE_COMMIT__,
       localStorageKey: minigameConfig.localStorageKey,
-      authorization: {
-        requiredAuthorAssociation: ['MEMBER', 'OWNER', 'COLLABORATOR'],
-        fallback: 'explicit approval from a repository member in this issue',
-      },
       summary: `${state.runner} requests ${state.upgrades.length} canonical minigame update(s) for ${state.sessionDate}.`,
       canonicalTargets: ['data/example-minigame.json', 'campaign-wiki/Minigames.md'],
       requestedChanges: [
@@ -94,7 +95,7 @@ function App() {
       downloadTextFile(issueDraft.attachment.filename, issueDraft.attachment.content, 'application/json')
       setPersistNotice(`Downloaded ${issueDraft.attachment.filename}. Attach it to the GitHub Issue before submitting.`)
     } else {
-      setPersistNotice('Opened a GitHub Issue with the full JSON request prefilled.')
+      setPersistNotice('Opened a GitHub Issue with the JSON Patch request prefilled.')
     }
     window.localStorage.setItem(minigameConfig.submittedSnapshotKey, currentSnapshot)
     setSubmittedSnapshot(currentSnapshot)
@@ -136,10 +137,10 @@ function App() {
       <section className="panel actions">
         <div>
           <strong>{hasUnsubmittedChanges ? 'Unsubmitted global changes' : 'No unsubmitted global changes'}</strong>
-          <p>Opening an issue marks this local snapshot as submitted. Cindy still validates membership before applying repo changes. Requests use a JSON Patch delta against the bundled seed state; oversized deltas download as an attachment file instead of being placed in the URL.</p>
+          <p>Save changes opens a GitHub Issue with a JSON Patch delta against the bundled seed state and the source commit it was generated from. Oversized deltas download as an attachment file instead of being placed in the URL.</p>
           {persistNotice && <p className="notice">{persistNotice}</p>}
         </div>
-        <button onClick={openPersistIssue}>Persist Changes via GitHub Issue</button>
+        <button onClick={openPersistIssue} disabled={!hasUnsubmittedChanges}>{hasUnsubmittedChanges ? 'Save changes' : 'Saved'}</button>
       </section>
     </main>
   )

@@ -10,13 +10,6 @@ assignees: []
 
 Who made the change, what happened in play, and what should become campaign canon?
 
-## Permission gate
-
-- [ ] I am a member/collaborator of this repository or was explicitly delegated by one.
-- [ ] I understand this issue is a request queue item, not an automatic write to canon.
-
-Maintainers/Cindy: do not act on this request unless the issue author's GitHub association is `MEMBER`, `OWNER`, or `COLLABORATOR`, or a repo member explicitly approves it in-thread.
-
 ## Machine-readable request
 
 ```json
@@ -25,10 +18,8 @@ Maintainers/Cindy: do not act on this request unless the issue author's GitHub a
   "appId": "example-minigame",
   "appName": "Example Minigame",
   "createdAt": "YYYY-MM-DDTHH:mm:ss.sssZ",
-  "authorization": {
-    "requiredAuthorAssociation": ["MEMBER", "OWNER", "COLLABORATOR"],
-    "fallback": "explicit approval from a repo member in this issue"
-  },
+  "sourceRepository": "owner/repo",
+  "sourceCommit": "commit-sha-used-to-generate-this-request",
   "summary": "Short human-readable summary.",
   "canonicalTargets": ["data/example.json", "campaign-wiki/path.md"],
   "requestedChanges": []
