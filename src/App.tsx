@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { minigameConfig } from './minigameConfig'
-import { buildIssueUrl, loadLocalState, saveLocalState, snapshotOf } from './persistence'
+import { buildIssueDraft, downloadTextFile, loadLocalState, saveLocalState, snapshotOf } from './persistence'
 import type { PersistRequest } from './persistence'
 
 interface ExampleState {
@@ -39,6 +39,7 @@ function App() {
   const [submittedSnapshot, setSubmittedSnapshot] = useState(
     () => window.localStorage.getItem(minigameConfig.submittedSnapshotKey) ?? snapshotOf(seedState),
   )
+  const [persistNotice, setPersistNotice] = useState('')
 
   const currentSnapshot = useMemo(() => snapshotOf(state), [state])
   const hasUnsubmittedChanges = currentSnapshot !== submittedSnapshot
@@ -76,14 +77,21 @@ function App() {
       requestedChanges: [{ type: 'replace_example_state', payload: state }],
     }
 
-    const url = buildIssueUrl(
+    const issueDraft = buildIssueDraft(
       minigameConfig.issueRepositoryUrl,
       `Persist ${minigameConfig.appName}: ${state.sessionDate}`,
       request,
+      minigameConfig.appId,
     )
+    if (issueDraft.attachment) {
+      downloadTextFile(issueDraft.attachment.filename, issueDraft.attachment.content, 'application/json')
+      setPersistNotice(`Downloaded ${issueDraft.attachment.filename}. Attach it to the GitHub Issue before submitting.`)
+    } else {
+      setPersistNotice('Opened a GitHub Issue with the full JSON request prefilled.')
+    }
     window.localStorage.setItem(minigameConfig.submittedSnapshotKey, currentSnapshot)
     setSubmittedSnapshot(currentSnapshot)
-    window.open(url, '_blank', 'noopener,noreferrer')
+    window.open(issueDraft.url, '_blank', 'noopener,noreferrer')
   }
 
   return (
@@ -121,7 +129,8 @@ function App() {
       <section className="panel actions">
         <div>
           <strong>{hasUnsubmittedChanges ? 'Unsubmitted global changes' : 'No unsubmitted global changes'}</strong>
-          <p>Opening an issue marks this local snapshot as submitted. Cindy still validates membership before applying repo changes.</p>
+          <p>Opening an issue marks this local snapshot as submitted. Cindy still validates membership before applying repo changes. Large JSON requests download as an attachment file instead of being placed in the URL.</p>
+          {persistNotice && <p className="notice">{persistNotice}</p>}
         </div>
         <button onClick={openPersistIssue}>Persist Changes via GitHub Issue</button>
       </section>

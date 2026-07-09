@@ -14,7 +14,7 @@ Keep minigames static and player-friendly while preserving an auditable path for
 
 ## Issue body shape
 
-Use plain text first and JSON second. Keep the fenced JSON block valid so Cindy can extract it reliably.
+Use plain text first and JSON second. Keep the fenced JSON block valid so Cindy can extract it reliably. For large full-state snapshots, do not force the full JSON into the issue URL; open a short prefilled issue and download the JSON request as an attachment file for the user to attach before submitting.
 
 ```json
 {
@@ -38,6 +38,6 @@ Warn only when local state differs from the last submitted canonical-request sna
 
 - Do not run arbitrary issue JSON as code.
 - Do not apply issues opened by public drive-by users.
-- Prefer full replacement snapshots for simple apps and explicit mutation arrays for apps where conflicts matter.
+- Prefer full replacement snapshots for simple apps and explicit mutation arrays for apps where conflicts matter. When a full snapshot exceeds the safe prefilled-URL budget, use a downloaded JSON attachment instead of a long URL.
 - Commit canonical changes to source/data/wiki files, not generated `dist/` artifacts.
 - Close issues with the commit hash and deployed URL when complete.

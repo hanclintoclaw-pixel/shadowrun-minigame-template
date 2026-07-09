@@ -9,7 +9,7 @@ Requirements:
 - Keep it deployable as GitHub Pages only; no backend.
 - Store local draft/session state in localStorage.
 - Include a Persist Changes button that opens a prefilled GitHub Issue.
-- The issue body must include a human summary and a fenced JSON block with `schemaVersion: "shadowrun-minigame-persist/v1"`.
+- The issue body must include a human summary and a fenced JSON block with `schemaVersion: "shadowrun-minigame-persist/v1"` when the payload fits in a safe URL; otherwise download the JSON request and open a short issue instructing the user to attach it.
 - Include authorization metadata requiring issue authors to be repository `MEMBER`, `OWNER`, or `COLLABORATOR`; public issues must not be auto-applied.
 - Warn on navigation when local global-impact state differs from the last submitted persistence-request snapshot.
 - Update README docs and campaign-wiki hub links.
@@ -27,7 +27,7 @@ Requirements:
 - Use GitHub Issues as a request queue, not a database.
 - Fetch open issues labeled `minigame-persist`.
 - Before applying anything, verify `authorAssociation` is `MEMBER`, `OWNER`, or `COLLABORATOR`, or that a repo member approved in-thread.
-- Extract and validate the fenced JSON block.
+- Extract and validate the fenced JSON block or attached JSON request file.
 - Apply changes only to canonical source/data/wiki files.
 - Run existing checks.
 - Commit, push, wait for CI/CD deployment, close the issue with the commit hash and deployed URL, and post a concise Discord update.
